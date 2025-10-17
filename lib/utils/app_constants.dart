@@ -7,6 +7,9 @@ class AppConstants {
   static const String splashRoute = '/splash';
   static const String onboardingRoute = '/onboarding';
   static const String loginRoute = '/login';
+  static const String verificationRoute = '/verification';
+  static const String registerRoute = '/register';
+  static const String addVehicleRoute = '/add-vehicle';
   static const String homeRoute = '/home';
   static const String parkingMapRoute = '/parking-map';
   static const String bookingRoute = '/booking';

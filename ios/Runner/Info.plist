@@ -45,5 +45,12 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- Permission descriptions -->
+	<key>NSCameraUsageDescription</key>
+	<string>Camera access is required to capture images of your vehicle and license plate</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Photo library access is needed to select images of your vehicle</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Access is needed to save vehicle images to your photo library</string>
 </dict>
 </plist>

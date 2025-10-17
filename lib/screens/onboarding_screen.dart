@@ -43,8 +43,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         curve: Curves.easeInOut,
       );
     } else {
-      // Navigate to login or home screen
-      Navigator.pushReplacementNamed(context, AppConstants.homeRoute);
+      // Navigate to login screen to start the authentication flow
+      Navigator.pushReplacementNamed(context, AppConstants.loginRoute);
     }
   }
   
