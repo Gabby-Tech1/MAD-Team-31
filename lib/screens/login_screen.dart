@@ -88,11 +88,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ],
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: SvgImage(
-                          assetName: 'assets/svg/logo.svg',
-                          color: AppColors.primary,
+                      child: ClipOval(
+                        child: Image.asset(
+                          'assets/images/logo.png',
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.cover,
                         ),
                       ),
                     ),

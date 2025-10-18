@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:parkright/components/fade_slide_animation.dart';
 import 'package:parkright/components/onboarding_title.dart';
 import 'package:parkright/components/page_indicator.dart';
@@ -19,9 +18,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   int _currentPage = 0;
   
   final List<String> _imagePaths = [
-    'assets/svg/parking_map.svg',
-    'assets/svg/booking.svg',
-    'assets/svg/smart_parking.svg',
+    'assets/images/parking_map.png',
+    'assets/images/booking.png',
+    'assets/images/smart_parking.jpg',
   ];
   
   @override
@@ -77,7 +76,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   // Skip button
                   TextButton(
                     onPressed: () {
-                      Navigator.pushReplacementNamed(context, AppConstants.homeRoute);
+                      Navigator.pushReplacementNamed(context, AppConstants.loginRoute);
                     },
                     child: Text(
                       'Skip',
@@ -134,10 +133,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           FadeSlideAnimation(
             duration: const Duration(milliseconds: 600),
             verticalOffset: 30.0,
-            child: SvgPicture.asset(
+            child: Image.asset(
               image,
               height: 200,
               width: double.infinity,
+              fit: BoxFit.contain,
             ),
           ),
           const SizedBox(height: 40),

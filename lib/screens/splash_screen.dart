@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:parkright/utils/app_constants.dart';
 import 'package:parkright/utils/app_theme.dart';
@@ -74,10 +73,13 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   ),
                 );
               },
-              child: SvgPicture.asset(
-                'assets/svg/logo.svg',
-                height: 120,
-                width: 120,
+              child: ClipOval(
+                child: Image.asset(
+                  'assets/images/logo.png',
+                  width: 180,
+                  height: 180,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
             const SizedBox(height: 24),

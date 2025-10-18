@@ -178,11 +178,12 @@ class _MapComponentState extends State<MapComponent> {
     _markers = _parkingSpots.map((spot) => 
       Marker(
         point: spot.position,
-        width: 40,
-        height: 40,
+        width: 60,  // Increased width
+        height: 60, // Increased height
         child: GestureDetector(
           onTap: () => widget.onSpotSelected(spot),
           child: Column(
+            mainAxisSize: MainAxisSize.min, // Important: take minimum vertical space
             children: [
               Icon(
                 Icons.location_on,
@@ -198,6 +199,8 @@ class _MapComponentState extends State<MapComponent> {
                 child: Text(
                   spot.name,
                   style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold),
+                  overflow: TextOverflow.ellipsis, // Handle text overflow
+                  maxLines: 1, // Limit to one line
                 ),
               )
             ],
@@ -224,7 +227,7 @@ class _MapComponentState extends State<MapComponent> {
                     setState(() {
                       _isMapLoaded = true;
                     });
-                    // Move to Saint Louis University campus
+                    // Center map on Saint Louis University campus
                     _mapController.move(LatLng(38.6368, -90.2336), 15.0);
                   },
                 ),
@@ -324,7 +327,7 @@ class _MapComponentState extends State<MapComponent> {
                   icon: Icon(Icons.my_location),
                   onPressed: () {
                     // In a real app, get current location and move map
-                    // For now, just move to Saint Louis University campus
+                    // For now, center map on Saint Louis University campus
                     _mapController.move(LatLng(38.6368, -90.2336), 15.0);
                   },
                 ),
