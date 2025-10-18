@@ -76,8 +76,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
               child: ClipOval(
                 child: Image.asset(
                   'assets/images/logo.png',
-                  width: 180,
-                  height: 180,
+                  width: 150,
+                  height: 150,
                   fit: BoxFit.cover,
                 ),
               ),
