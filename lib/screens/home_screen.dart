@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:parkright/utils/app_theme.dart';
 import 'package:parkright/utils/app_constants.dart';
 import 'package:parkright/models/parking_spot.dart';
 import 'package:parkright/models/parking_category.dart';
@@ -96,20 +95,12 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           
-          // Bottom navigation bar
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: _buildBottomNavBar(),
-          ),
-          
           // Selected spot card
           if (_selectedSpot != null)
             Positioned(
               left: 0,
               right: 0,
-              bottom: 80, // Above bottom navigation
+              bottom: 16, // Give some space from bottom
               child: ParkingSpotSelectionCard(
                 spot: _selectedSpot!,
                 onBookNowPressed: () => _navigateToDetail(_selectedSpot!),
@@ -120,52 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
   
-  Widget _buildBottomNavBar() {
-    return Container(
-      height: 80,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 4,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _buildNavItem(Icons.grid_view, 'Home', true),
-          _buildNavItem(Icons.notifications_outlined, 'Notifications', false),
-          _buildNavItem(Icons.history, 'History', false),
-          _buildNavItem(Icons.person_outline, 'Profile', false),
-        ],
-      ),
-    );
-  }
-  
-  Widget _buildNavItem(IconData icon, String label, bool isSelected) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(
-          icon,
-          color: isSelected ? AppColors.primary : AppColors.textLight,
-          size: 24,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? AppColors.primary : AppColors.textLight,
-            fontSize: 12,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-          ),
-        ),
-      ],
-    );
-  }
+
   
   void _onSearchChanged(String query) {
     // Handle search query changes

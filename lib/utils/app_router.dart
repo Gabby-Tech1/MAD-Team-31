@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:parkright/screens/add_vehicle_screen.dart';
-import 'package:parkright/screens/home_screen.dart';
 import 'package:parkright/screens/login_screen.dart';
 import 'package:parkright/screens/onboarding_screen.dart';
 import 'package:parkright/screens/register_screen.dart';
@@ -11,6 +10,7 @@ import 'package:parkright/screens/parking_detail_screen.dart';
 import 'package:parkright/screens/parking_space_selection_screen.dart';
 import 'package:parkright/screens/booking_review_screen.dart';
 import 'package:parkright/screens/parking_code_screen.dart';
+import 'package:parkright/screens/main_navigation_screen.dart';
 import 'package:parkright/models/parking_spot.dart';
 import 'package:parkright/utils/app_constants.dart';
 
@@ -64,7 +64,7 @@ class AppRouter {
       case AppConstants.homeRoute:
         return PageTransition(
           type: PageTransitionType.rightToLeft,
-          child: const HomeScreen(),
+          child: const MainNavigationScreen(),
           duration: const Duration(milliseconds: AppConstants.shortAnimationDuration),
         );
       
