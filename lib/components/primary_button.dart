@@ -3,7 +3,7 @@ import 'package:parkright/utils/app_theme.dart';
 
 class PrimaryButton extends StatelessWidget {
   final String text;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final bool isFullWidth;
   final bool isOutlined;
   final EdgeInsets padding;

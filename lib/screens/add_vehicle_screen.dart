@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:parkright/components/custom_text_field.dart';
 import 'package:parkright/components/fade_slide_animation.dart';
 import 'package:parkright/utils/app_constants.dart';
 import 'package:parkright/utils/app_theme.dart';

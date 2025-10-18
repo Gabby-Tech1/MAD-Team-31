@@ -3,9 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:parkright/utils/app_constants.dart';
 import 'package:parkright/utils/app_router.dart';
 import 'package:parkright/utils/app_theme.dart';
+import 'package:parkright/utils/map_initializer.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Google Maps
+  await MapInitializer.initialize();
   
   // Set preferred orientations
   SystemChrome.setPreferredOrientations([

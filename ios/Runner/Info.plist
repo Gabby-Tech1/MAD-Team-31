@@ -48,6 +48,14 @@
 	<!-- Permission descriptions -->
 	<key>NSCameraUsageDescription</key>
 	<string>Camera access is required to capture images of your vehicle and license plate</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Location access is required to show your current location on the map</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Location access is required to find nearby parking spots</string>
+	<key>io.flutter.embedded_views_preview</key>
+	<true/>
+	<key>GMSApiKey</key>
+	<string>AIzaSyDummyKey123456789DevelopmentOnly</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Photo library access is needed to select images of your vehicle</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>

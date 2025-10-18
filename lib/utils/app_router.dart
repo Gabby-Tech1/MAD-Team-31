@@ -7,6 +7,11 @@ import 'package:parkright/screens/onboarding_screen.dart';
 import 'package:parkright/screens/register_screen.dart';
 import 'package:parkright/screens/splash_screen.dart';
 import 'package:parkright/screens/verification_screen.dart';
+import 'package:parkright/screens/parking_detail_screen.dart';
+import 'package:parkright/screens/parking_space_selection_screen.dart';
+import 'package:parkright/screens/booking_review_screen.dart';
+import 'package:parkright/screens/parking_code_screen.dart';
+import 'package:parkright/models/parking_spot.dart';
 import 'package:parkright/utils/app_constants.dart';
 
 class AppRouter {
@@ -60,6 +65,55 @@ class AppRouter {
         return PageTransition(
           type: PageTransitionType.rightToLeft,
           child: const HomeScreen(),
+          duration: const Duration(milliseconds: AppConstants.shortAnimationDuration),
+        );
+      
+      case AppConstants.parkingDetailRoute:
+        final args = settings.arguments as Map<String, dynamic>;
+        final spot = args['spot'] as ParkingSpot;
+        return PageTransition(
+          type: PageTransitionType.bottomToTop,
+          child: ParkingDetailScreen(spot: spot),
+          duration: const Duration(milliseconds: AppConstants.shortAnimationDuration),
+        );
+        
+      case AppConstants.parkingSpaceSelectionRoute:
+        final args = settings.arguments as Map<String, dynamic>;
+        return PageTransition(
+          type: PageTransitionType.rightToLeft,
+          child: ParkingSpaceSelectionScreen(
+            spot: args['spot'] as ParkingSpot,
+            selectedHours: args['hours'] as int,
+          ),
+          duration: const Duration(milliseconds: AppConstants.shortAnimationDuration),
+        );
+        
+      case AppConstants.bookingReviewRoute:
+        final args = settings.arguments as Map<String, dynamic>;
+        return PageTransition(
+          type: PageTransitionType.rightToLeft,
+          child: BookingReviewScreen(
+            spot: args['spot'] as ParkingSpot,
+            hours: args['hours'] as int,
+            spaceId: args['spaceId'] as String,
+            floor: args['floor'] as int,
+            // If vehicle is not provided, use the default value from BookingReviewScreen constructor
+            vehicle: args.containsKey('vehicle') ? args['vehicle'] as String : 'Mercedez Benz Z3',
+          ),
+          duration: const Duration(milliseconds: AppConstants.shortAnimationDuration),
+        );
+        
+      case AppConstants.parkingCodeRoute:
+        final args = settings.arguments as Map<String, dynamic>;
+        return PageTransition(
+          type: PageTransitionType.bottomToTop,
+          child: ParkingCodeScreen(
+            spot: args['spot'] as ParkingSpot,
+            hours: args['hours'] as int,
+            spaceId: args['spaceId'] as String,
+            floor: args['floor'] as int,
+            vehicle: args.containsKey('vehicle') ? args['vehicle'] as String : 'Toyota Camry',
+          ),
           duration: const Duration(milliseconds: AppConstants.shortAnimationDuration),
         );
         

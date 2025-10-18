@@ -14,6 +14,10 @@ class AppConstants {
   static const String parkingMapRoute = '/parking-map';
   static const String bookingRoute = '/booking';
   static const String profileRoute = '/profile';
+  static const String parkingDetailRoute = '/parking-detail';
+  static const String parkingSpaceSelectionRoute = '/parking-space-selection';
+  static const String bookingReviewRoute = '/booking-review';
+  static const String parkingCodeRoute = '/parking-code';
   
   // Animation durations
   static const int splashDuration = 2500; // milliseconds
