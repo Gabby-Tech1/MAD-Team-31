@@ -79,12 +79,10 @@ Reports → *Analyze usage trends*
 
 ---
 
-## 🚗 Development Progress
+🚗 Development Progress
 What We've Accomplished
 
-## Week 1 - UI Implementation & App Architecture Setup
-
---
+Week 1 - UI Implementation & App Architecture Setup
 
 📱 Core UI Screens Developed
 
@@ -112,9 +110,9 @@ Notifications Screen – Displays alerts and booking updates
 
 Profile Screen – User profile with account info, settings, and logout option
 
---
+---
 
-## 🧩 Reusable Component Library
+🧩 Reusable Component Library
 
 Custom text fields with validation
 
@@ -132,9 +130,9 @@ Fade and pulse animations for interactivity
 
 Empty state and onboarding title components
 
---
+---
 
-## 🎨 Design System Implementation
+🎨 Design System Implementation
 
 Color Palette: Blue (#007BFF), Light Gray (#F5F5F5), Black (#000000)
 
@@ -144,9 +142,9 @@ Layout System: Consistent spacing, rounded corners, and elevation for depth
 
 Theme: Implemented through centralized app_theme.dart for dark/light modes
 
---
+---
 
-## 🔄 Navigation & User Flow
+🔄 Navigation & User Flow
 
 Bottom navigation with 4 main tabs (Home, History, Notifications, Profile)
 
@@ -156,139 +154,11 @@ Smooth transitions and animation between onboarding → login → main navigatio
 
 Map component initialized through map_initializer.dart for live location and parking spot selection
 
---
+---
 
-## 🗂️ Current Folder Structure
-lib/
-│
-├── components/                  # Reusable and shared UI components
-│   ├── bottom_nav_bar.dart
-│   ├── category_selector_component.dart
-│   ├── custom_text_field.dart
-│   ├── primary_button.dart
-│   ├── search_bar_component.dart
-│   ├── parking_detail_component.dart
-│   ├── parking_history_card.dart
-│   ├── parking_spot_selection_card.dart
-│   ├── notification_item_card.dart
-│   ├── empty_state_component.dart
-│   ├── fade_slide_animation.dart
-│   ├── pulse_animation.dart
-│   └── svg_image.dart
-│
-├── screens/                     # App Screens (UI layer)
-│   ├── splash_screen.dart
-│   ├── onboarding_screen.dart
-│   ├── login_screen.dart
-│   ├── register_screen.dart
-│   ├── verification_screen.dart
-│   ├── home_screen.dart
-│   ├── parking_space_selection_screen.dart
-│   ├── parking_detail_screen.dart
-│   ├── booking_review_screen.dart
-│   ├── parking_code_screen.dart
-│   ├── history_screen.dart
-│   ├── notifications_screen.dart
-│   ├── profile_screen.dart
-│   └── main_navigation_screen.dart
-│
-├── utils/
-│   ├── app_constants.dart
-│   ├── app_router.dart
-│   ├── app_theme.dart
-│   └── map_initializer.dart
-│
-└── main.dart                    # App entry point
+🗂️ Current Folder Structure
+<img width="508" height="651" alt="Screenshot 2025-10-19 at 10 54 03 PM" src="https://github.com/user-attachments/assets/4bb664f3-fe90-4a26-8979-e6acfc3532de" />
 
-
---
-
-## 🏗️ Architecture Explanation
-1. Components/ - Reusable UI Components
-
-Purpose: Contains shared widgets and UI elements used throughout the app.
-
-Includes:
-
-Buttons, text fields, and cards
-
-Animation components (fade, pulse)
-
-Category selectors and placeholders
-
-Notification, profile, and onboarding UI parts
-
-Benefits:
-
-🚗 Reusability across screens
-
-🧹 Cleaner codebase
-
-🎨 Easy customization and updates
-
---
-
-## 2. Screens/ - App UI and Feature Screens
-
-Purpose: Contains all visual and interactive screens for the user journey.
-
-Authentication Flow: Splash → Onboarding → Login → Register → Verification
-Main App Flow: Home → Parking Selection → Parking Detail → Review → Code
-User Management: History, Notifications, Profile
-
-Benefits:
-
-🚀 Feature-based modular organization
-
-🔄 Easy navigation setup
-
-📈 Supports future scalability
-
---
-
-## 3. Utils/ - App Utilities & Configuration
-
-Purpose: Holds constants, theming, and routing logic.
-
-Files:
-
-app_constants.dart: Global constant values
-
-app_theme.dart: Defines color scheme, text styles, and theming
-
-app_router.dart: Handles named routes and navigation
-
-map_initializer.dart: Configures map integration and permissions
-
-Benefits:
-
-🧩 Centralized configuration
-
-🔧 Easier maintenance
-
-🌐 Consistent app-wide behavior
-
---
-
-## 🛠️ Technologies Used
-
-Framework: Flutter (Dart)
-
-Architecture: Modular + Component-Based
-
-Navigation: Custom router (app_router.dart)
-
-State Management: Provider (planned)
-
-Animations: Flutter AnimationController, Fade & Pulse Effects
-
-Maps & Location: Google Maps SDK (via map_initializer.dart)
-
-UI Design System: Material 3 Principles
-
-Storage: SharedPreferences (planned for session management)
-
-Fonts: Poppins (Google Fonts)
 ## 🛠️ Flutter Setup (Default)
 
 This project is a starting point for a Flutter application.
