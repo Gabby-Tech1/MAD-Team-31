@@ -157,7 +157,101 @@ Map component initialized through map_initializer.dart for live location and par
 ---
 
 🗂️ Current Folder Structure
+
 <img width="508" height="651" alt="Screenshot 2025-10-19 at 10 54 03 PM" src="https://github.com/user-attachments/assets/4bb664f3-fe90-4a26-8979-e6acfc3532de" />
+
+---
+
+🏗️ Architecture Explanation
+1. Components/ - Reusable UI Components
+
+Purpose: Contains shared widgets and UI elements used throughout the app.
+
+Includes:
+
+Buttons, text fields, and cards
+
+Animation components (fade, pulse)
+
+Category selectors and placeholders
+
+Notification, profile, and onboarding UI parts
+
+Benefits:
+
+🚗 Reusability across screens
+
+🧹 Cleaner codebase
+
+🎨 Easy customization and updates
+
+---
+
+2. Screens/ - App UI and Feature Screens
+
+Purpose: Contains all visual and interactive screens for the user journey.
+
+Authentication Flow: Splash → Onboarding → Login → Register → Verification
+Main App Flow: Home → Parking Selection → Parking Detail → Review → Code
+User Management: History, Notifications, Profile
+
+Benefits:
+
+🚀 Feature-based modular organization
+
+🔄 Easy navigation setup
+
+📈 Supports future scalability
+
+---
+
+3. Utils/ - App Utilities & Configuration
+
+Purpose: Holds constants, theming, and routing logic.
+
+Files:
+
+app_constants.dart: Global constant values
+
+app_theme.dart: Defines color scheme, text styles, and theming
+
+app_router.dart: Handles named routes and navigation
+
+map_initializer.dart: Configures map integration and permissions
+
+Benefits:
+
+🧩 Centralized configuration
+
+🔧 Easier maintenance
+
+🌐 Consistent app-wide behavior
+
+---
+
+🛠️ Technologies Used
+
+Framework: Flutter (Dart)
+
+Architecture: Modular + Component-Based
+
+Navigation: Custom router (app_router.dart)
+
+State Management: Provider (planned)
+
+Animations: Flutter AnimationController, Fade & Pulse Effects
+
+Maps & Location: Google Maps SDK (via map_initializer.dart)
+
+UI Design System: Material 3 Principles
+
+Storage: SharedPreferences (planned for session management)
+
+Fonts: Poppins (Google Fonts)
+
+---
+
+<img width="496" height="648" alt="image" src="https://github.com/user-attachments/assets/1e23b970-b516-42b8-b740-aa1e9516d983" />
 
 ## 🛠️ Flutter Setup (Default)
 
