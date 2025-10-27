@@ -237,15 +237,17 @@ Architecture: Modular + Component-Based
 
 Navigation: Custom router (app_router.dart)
 
-State Management: Provider (planned)
+State Management: Provider
 
 Animations: Flutter AnimationController, Fade & Pulse Effects
 
-Maps & Location: Google Maps SDK (via map_initializer.dart)
+Maps & Location: HERE Maps API for real-time parking data
+
+Backend: Supabase (PostgreSQL database, authentication, real-time subscriptions)
 
 UI Design System: Material 3 Principles
 
-Storage: SharedPreferences (planned for session management)
+Storage: SharedPreferences for session management
 
 Fonts: Poppins (Google Fonts)
 
@@ -302,6 +304,194 @@ Parking Code Screen
 ParkRight Profile, Notifications, History Screens
 
 <img width="468" height="313" alt="image" src="https://github.com/user-attachments/assets/0ef83c48-637d-4960-86b7-54965d4ab8a5" />
+
+---
+
+## 🔧 Backend Integration
+
+### Supabase Setup
+- **Database**: PostgreSQL with Row Level Security (RLS) policies
+- **Authentication**: User login/signup with email verification
+- **Tables**: 
+  - `users`: User profiles and authentication data
+  - `vehicles`: User vehicle information
+  - `bookings`: Parking booking records with status and payment tracking
+  - `parking_spots`: HERE API parking data integration
+- **Real-time**: Live updates for parking availability and booking status
+
+### Key Features Implemented
+- User authentication with secure login/logout
+- Vehicle management for booking purposes
+- Booking creation with payment status tracking
+- Real-time parking spot availability via HERE Maps integration
+
+---
+
+## 🌐 API Integrations
+
+### HERE Maps API
+- **Purpose**: Real-time parking spot discovery and location data
+- **Features**: 
+  - Nearby parking search within specified radius
+  - Parking garage and lot information
+  - Location coordinates and accessibility data
+  - Distance calculations from user location
+- **Integration**: RESTful API calls with JSON response parsing
+- **Rate Limiting**: Configured for optimal performance
+
+---
+
+## 🚀 Recent Developments & Fixes
+
+### Week 2-3 - Backend Integration & Booking System
+
+#### ✅ Completed Features
+- **Supabase Integration**: Full backend setup with authentication and database
+- **HERE Maps Integration**: Real-time parking spot data fetching and display
+- **Booking System**: Complete booking flow from selection to confirmation
+- **User Authentication**: Login, registration, and profile management
+- **Vehicle Management**: Add, edit, and select vehicles for booking
+- **Map Interface**: Interactive map with parking spot markers and selection
+
+#### 🔧 Code Fixes & Improvements
+- **Booking Model Serialization**: Fixed `toJson()` method to exclude auto-generated fields (`id`, `created_at`)
+- **Error Handling**: Enhanced error messages for missing vehicles and booking failures
+- **Vehicle Validation**: Added checks to ensure selected vehicle exists before booking
+- **Payment Status**: Implemented proper payment status tracking in bookings
+- **UI Responsiveness**: Fixed layout issues and improved user experience
+
+#### 🐛 Known Issues & Feedback
+- **RLS Policy Configuration**: Booking creation fails due to Supabase Row Level Security policies blocking inserts. Users must configure RLS policies in Supabase dashboard to allow authenticated users to create bookings.
+- **Payment Status Constraint**: Database constraint violation for `bookings_payment_status_check` - ensure payment status values match allowed enum values.
+- **UI Layout Issues**: 
+  - `setState()` called during build phase in map component
+  - RenderFlex overflow in some screens (248 pixels on right)
+- **Performance**: Multiple HERE API calls during map initialization causing temporary UI freezes
+- **Linting Warnings**: Numerous deprecated member uses (e.g., `withOpacity`) and unused code that should be cleaned up
+
+---
+
+## 📋 Setup Instructions
+
+### Prerequisites
+- Flutter SDK (3.9.2+)
+- Dart SDK
+- Android Studio or VS Code with Flutter extensions
+- Supabase account and project
+- HERE Maps API key
+
+### Installation Steps
+
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/Gabby-Tech1/MAD-Team-31.git
+   cd parkright
+   ```
+
+2. **Install Dependencies**
+   ```bash
+   flutter pub get
+   ```
+
+3. **Configure Supabase**
+   - Create a new project at [supabase.com](https://supabase.com)
+   - Copy your project URL and anon key
+   - Update `lib/services/api_service.dart` with your credentials:
+     ```dart
+     static const String supabaseUrl = 'your-supabase-url';
+     static const String supabaseAnonKey = 'your-anon-key';
+     ```
+
+4. **Configure HERE Maps API**
+   - Get API key from [HERE Developer Portal](https://developer.here.com/)
+   - Update `lib/services/map_service.dart` with your API key:
+     ```dart
+     static const String apiKey = 'your-here-api-key';
+     ```
+
+5. **Database Setup**
+   - Run the SQL scripts in Supabase dashboard to create tables
+   - Configure Row Level Security (RLS) policies for bookings table:
+     ```sql
+     -- Allow authenticated users to insert their own bookings
+     CREATE POLICY "Users can create their own bookings" ON bookings
+     FOR INSERT WITH CHECK (auth.uid() = user_id);
+     ```
+
+6. **Run the App**
+   ```bash
+   flutter run
+   ```
+
+### Environment Configuration
+- Copy `credentials.properties.example` to `credentials.properties`
+- Fill in your API keys and configuration values
+
+---
+
+## 📦 Dependencies
+
+### Core Dependencies
+- `flutter`: UI framework
+- `supabase_flutter`: Backend integration
+- `provider`: State management
+- `flutter_map`: Map display
+- `geolocator`: Location services
+- `http`: API calls
+
+### UI & Animation
+- `flutter_svg`: SVG image support
+- `google_fonts`: Custom typography
+- `intl`: Internationalization
+- `shared_preferences`: Local storage
+
+### Development
+- `flutter_lints`: Code linting
+- `flutter_test`: Unit testing
+
+For a complete list, see `pubspec.yaml`.
+
+---
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+1. **Booking Creation Fails**
+   - Check Supabase RLS policies are enabled and configured correctly
+   - Verify user authentication status
+   - Ensure selected vehicle exists in database
+
+2. **HERE Maps Not Loading**
+   - Verify API key is valid and has correct permissions
+   - Check internet connection
+   - Ensure location permissions are granted
+
+3. **Build Errors**
+   - Run `flutter clean` and `flutter pub get`
+   - Check Flutter and Dart versions
+   - Resolve any dependency conflicts
+
+4. **UI Layout Issues**
+   - Test on different screen sizes
+   - Check for overflow errors in console
+   - Adjust responsive design breakpoints
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+This project is part of the Mobile App Development Internship program.
 
 ---
 
