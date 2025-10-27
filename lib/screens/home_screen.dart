@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:parkright/screens/feedback_screen.dart';
 import 'package:parkright/utils/app_constants.dart';
 import 'package:parkright/models/parking_spot.dart';
 import 'package:parkright/models/parking_category.dart';
@@ -51,11 +52,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          // Map Component or Placeholder
-          _isMapAvailable 
+  return Scaffold(
+    body: Stack(
+      children: [
+        // Map Component or Placeholder
+        _isMapAvailable
             ? MapComponent(
                 onSpotSelected: (spot) {
                   setState(() {
@@ -76,47 +77,59 @@ class _HomeScreenState extends State<HomeScreen> {
                   });
                 },
               ),
-          
-          // Search Bar at the top
-          SafeArea(
-            child: Column(
-              children: [
-                SearchBarComponent(
-                  controller: _searchController,
-                  onSearchChanged: _onSearchChanged,
-                  onFilterTap: _onFilterTap,
-                  locationName: 'Sylhet, India',
-                ),
-                
-                // Category selector
-                CategorySelectorComponent(
-                  categories: _categories,
-                  selectedCategory: _selectedCategory,
-                  onCategorySelected: (category) {
-                    setState(() {
-                      _selectedCategory = category;
-                    });
-                  },
-                ),
-              ],
+
+        // Search Bar at the top
+        SafeArea(
+          child: Column(
+            children: [
+              SearchBarComponent(
+                controller: _searchController,
+                onSearchChanged: _onSearchChanged,
+                onFilterTap: _onFilterTap,
+                locationName: 'Sylhet, India',
+              ),
+
+              // Category selector
+              CategorySelectorComponent(
+                categories: _categories,
+                selectedCategory: _selectedCategory,
+                onCategorySelected: (category) {
+                  setState(() {
+                    _selectedCategory = category;
+                  });
+                },
+              ),
+            ],
+          ),
+        ),
+
+        // Selected spot card
+        if (_selectedSpot != null)
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 16, // Give some space from bottom
+            child: ParkingSpotSelectionCard(
+              spot: _selectedSpot!,
+              onBookNowPressed: () => _navigateToDetail(_selectedSpot!),
             ),
           ),
-          
-          // Selected spot card
-          if (_selectedSpot != null)
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 16, // Give some space from bottom
-              child: ParkingSpotSelectionCard(
-                spot: _selectedSpot!,
-                onBookNowPressed: () => _navigateToDetail(_selectedSpot!),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
+      ],
+    ),
+
+    // 💬 Floating Feedback Button
+    floatingActionButton: FloatingActionButton.extended(
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const FeedbackScreen()),
+        );
+      },
+      icon: const Icon(Icons.feedback),
+      label: const Text('Feedback'),
+    ),
+  );
+}
   
 
   

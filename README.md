@@ -80,13 +80,11 @@ Reports → *Analyze usage trends*
 ---
 
 🚗 Development Progress
-What We've Accomplished:
+What We've Accomplished
 
 Week 1 - UI Implementation & App Architecture Setup
 
---
-
-📱 Core UI Screens Developed:
+📱 Core UI Screens Developed
 
 Splash Screen – App logo with fade transition animation to onboarding
 
@@ -112,9 +110,9 @@ Notifications Screen – Displays alerts and booking updates
 
 Profile Screen – User profile with account info, settings, and logout option
 
---
+---
 
-🧩 Reusable Component Library:
+🧩 Reusable Component Library
 
 Custom text fields with validation
 
@@ -132,9 +130,9 @@ Fade and pulse animations for interactivity
 
 Empty state and onboarding title components
 
---
+---
 
-🎨 Design System Implementation:
+🎨 Design System Implementation
 
 Color Palette: Blue (#007BFF), Light Gray (#F5F5F5), Black (#000000)
 
@@ -144,9 +142,9 @@ Layout System: Consistent spacing, rounded corners, and elevation for depth
 
 Theme: Implemented through centralized app_theme.dart for dark/light modes
 
---
+---
 
-🔄 Navigation & User Flow:
+🔄 Navigation & User Flow
 
 Bottom navigation with 4 main tabs (Home, History, Notifications, Profile)
 
@@ -156,51 +154,13 @@ Smooth transitions and animation between onboarding → login → main navigatio
 
 Map component initialized through map_initializer.dart for live location and parking spot selection
 
---
+---
 
 🗂️ Current Folder Structure
-lib
- ┣ 📂components                      # Reusable and shared UI components
- ┃ ┣ 📜bottom_nav_bar.dart
- ┃ ┣ 📜category_selector_component.dart
- ┃ ┣ 📜custom_text_field.dart
- ┃ ┣ 📜primary_button.dart
- ┃ ┣ 📜search_bar_component.dart
- ┃ ┣ 📜parking_detail_component.dart
- ┃ ┣ 📜parking_history_card.dart
- ┃ ┣ 📜parking_spot_selection_card.dart
- ┃ ┣ 📜notification_item_card.dart
- ┃ ┣ 📜empty_state_component.dart
- ┃ ┣ 📜fade_slide_animation.dart
- ┃ ┣ 📜pulse_animation.dart
- ┃ ┗ 📜svg_image.dart
 
- ┣ 📂screens                         # App Screens (UI layer)
- ┃ ┣ 📜splash_screen.dart
- ┃ ┣ 📜onboarding_screen.dart
- ┃ ┣ 📜login_screen.dart
- ┃ ┣ 📜register_screen.dart
- ┃ ┣ 📜verification_screen.dart
- ┃ ┣ 📜home_screen.dart
- ┃ ┣ 📜parking_space_selection_screen.dart
- ┃ ┣ 📜parking_detail_screen.dart
- ┃ ┣ 📜booking_review_screen.dart
- ┃ ┣ 📜parking_code_screen.dart
- ┃ ┣ 📜history_screen.dart
- ┃ ┣ 📜notifications_screen.dart
- ┃ ┣ 📜profile_screen.dart
- ┃ ┗ 📜main_navigation_screen.dart
+<img width="508" height="651" alt="Screenshot 2025-10-19 at 10 54 03 PM" src="https://github.com/user-attachments/assets/4bb664f3-fe90-4a26-8979-e6acfc3532de" />
 
- ┣ 📂utils
- ┃ ┣ 📜app_constants.dart
- ┃ ┣ 📜app_router.dart
- ┃ ┣ 📜app_theme.dart
- ┃ ┗ 📜map_initializer.dart
-
- ┗ 📜main.dart                       # App entry point
-
-
---
+---
 
 🏗️ Architecture Explanation
 1. Components/ - Reusable UI Components
@@ -225,7 +185,7 @@ Benefits:
 
 🎨 Easy customization and updates
 
---
+---
 
 2. Screens/ - App UI and Feature Screens
 
@@ -243,7 +203,7 @@ Benefits:
 
 📈 Supports future scalability
 
---
+---
 
 3. Utils/ - App Utilities & Configuration
 
@@ -267,7 +227,7 @@ Benefits:
 
 🌐 Consistent app-wide behavior
 
---
+---
 
 🛠️ Technologies Used
 
@@ -288,6 +248,62 @@ UI Design System: Material 3 Principles
 Storage: SharedPreferences (planned for session management)
 
 Fonts: Poppins (Google Fonts)
+
+---
+
+Onboarding, Splash Screens
+
+<img width="496" height="648" alt="image" src="https://github.com/user-attachments/assets/1e23b970-b516-42b8-b740-aa1e9516d983" />
+
+---
+
+Login Screens
+
+<img width="496" height="648" alt="image" src="https://github.com/user-attachments/assets/22716184-1b19-4763-a574-a138b9570d26" />
+
+---
+
+Add Vehicle Screen
+
+<img width="126" height="273" alt="image" src="https://github.com/user-attachments/assets/788d3447-ac17-40e2-8e8d-13b4e4fe7707" />
+
+---
+
+Location Selection Screen
+
+<img width="295" height="269" alt="image" src="https://github.com/user-attachments/assets/6f7bfa40-2c6b-432a-9bdc-39288551a59c" />
+
+---
+
+Parking Detail Screen
+
+<img width="119" height="258" alt="image" src="https://github.com/user-attachments/assets/bbb3e59c-f469-4f89-8fef-890c3ee2b01e" />
+
+---
+
+Booking Confirmation Screen
+
+<img width="306" height="199" alt="image" src="https://github.com/user-attachments/assets/b1c697b7-a333-4b6d-bae9-8d501cd425d0" />
+
+---
+
+Parking Space Selection Screen
+
+<img width="279" height="186" alt="image" src="https://github.com/user-attachments/assets/297ea09c-b457-405d-9c63-9c457e77f9c1" />
+
+---
+
+Parking Code Screen
+
+<img width="119" height="259" alt="image" src="https://github.com/user-attachments/assets/8c78ac59-86d9-4c66-bae0-7c55e3de95e0" />
+
+---
+
+ParkRight Profile, Notifications, History Screens
+
+<img width="468" height="313" alt="image" src="https://github.com/user-attachments/assets/0ef83c48-637d-4960-86b7-54965d4ab8a5" />
+
+---
 
 ## 🛠️ Flutter Setup (Default)
 
