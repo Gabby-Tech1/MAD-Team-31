@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:parkright/components/custom_text_field.dart';
 import 'package:parkright/components/fade_slide_animation.dart';
-import 'package:parkright/components/svg_image.dart';
 import 'package:parkright/utils/app_constants.dart';
 import 'package:parkright/utils/app_theme.dart';
+import 'package:parkright/providers/auth_provider.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -15,20 +16,74 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   
   @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
-    _phoneController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
   
-  void _navigateToAddVehicle() {
-    // In a real app, we would validate and send registration data to the server
-    // For UI implementation, just navigate to the next screen
-    Navigator.pushNamed(context, AppConstants.addVehicleRoute);
+  Future<void> _registerUser() async {
+    if (_nameController.text.trim().isEmpty ||
+        _emailController.text.trim().isEmpty ||
+        _passwordController.text.trim().isEmpty ||
+        _confirmPasswordController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields')),
+      );
+      return;
+    }
+
+    // Validate email format
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(_emailController.text.trim())) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid email address')),
+      );
+      return;
+    }
+
+    // Validate password length
+    if (_passwordController.text.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password must be at least 6 characters long')),
+      );
+      return;
+    }
+
+    // Check if passwords match
+    if (_passwordController.text != _confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match')),
+      );
+      return;
+    }
+
+    try {
+      await context.read<AuthProvider>().signUpWithEmail(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+        _nameController.text.trim(),
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Registration successful! Please check your email to verify your account.')),
+        );
+        Navigator.pushReplacementNamed(context, AppConstants.addVehicleRoute);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Registration failed: ${e.toString()}')),
+        );
+      }
+    }
   }
   
   void _navigateToLogin() {
@@ -117,13 +172,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                // Phone number field
+                // Password field
                 FadeSlideAnimation(
                   delay: const Duration(milliseconds: 600),
                   child: CustomTextField(
-                    hintText: 'Phone Number',
-                    controller: _phoneController,
-                    keyboardType: TextInputType.phone,
+                    hintText: 'Password',
+                    controller: _passwordController,
+                    obscureText: true,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Confirm password field
+                FadeSlideAnimation(
+                  delay: const Duration(milliseconds: 700),
+                  child: CustomTextField(
+                    hintText: 'Confirm Password',
+                    controller: _confirmPasswordController,
+                    obscureText: true,
                   ),
                 ),
                 const SizedBox(height: 40),
@@ -133,7 +198,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _navigateToAddVehicle,
+                      onPressed: _registerUser,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         foregroundColor: AppColors.buttonText,

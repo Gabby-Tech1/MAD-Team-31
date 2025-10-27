@@ -2,9 +2,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 import 'package:parkright/components/fade_slide_animation.dart';
 import 'package:parkright/utils/app_constants.dart';
 import 'package:parkright/utils/app_theme.dart';
+import 'package:parkright/providers/auth_provider.dart';
+import 'package:parkright/providers/parking_provider.dart';
+import 'package:parkright/models/vehicle.dart';
 
 class AddVehicleScreen extends StatefulWidget {
   const AddVehicleScreen({Key? key}) : super(key: key);
@@ -16,42 +20,83 @@ class AddVehicleScreen extends StatefulWidget {
 class _AddVehicleScreenState extends State<AddVehicleScreen> {
   final TextEditingController _licensePlateController = TextEditingController();
   final TextEditingController _carModelController = TextEditingController();
+  final TextEditingController _yearController = TextEditingController();
+  final TextEditingController _colorController = TextEditingController();
   String _selectedVehicleType = 'Car'; // Default value
   File? _vehicleImage;
   final ImagePicker _picker = ImagePicker();
+  String? _phoneNumber; // Store phone number from registration
   
   // List of vehicle types for dropdown
   final List<String> _vehicleTypes = ['Car', 'SUV', 'Truck', 'Motorcycle', 'Van'];
   
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Get phone number from navigation arguments
+    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    if (args != null && args.containsKey('phoneNumber')) {
+      _phoneNumber = args['phoneNumber'];
+    }
+  }
+  
+  @override
   void dispose() {
     _licensePlateController.dispose();
     _carModelController.dispose();
+    _yearController.dispose();
+    _colorController.dispose();
     super.dispose();
   }
   
-  void _navigateToHome() {
-    // Check if all fields are filled
-    if (_licensePlateController.text.isEmpty || 
+  Future<void> _saveVehicle() async {
+    // Validate inputs
+    if (_selectedVehicleType.isEmpty ||
+        _licensePlateController.text.isEmpty ||
         _carModelController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill in all required fields')),
       );
       return;
     }
-    
-    // Show success message
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Vehicle added successfully!')),
+
+    final authProvider = context.read<AuthProvider>();
+    if (authProvider.user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please log in first')),
+      );
+      return;
+    }
+
+    // Create vehicle object
+    final vehicle = Vehicle(
+      id: '', // Will be set by database
+      userId: authProvider.user!.id,
+      make: _selectedVehicleType,
+      model: _carModelController.text.trim(),
+      licensePlate: _licensePlateController.text.trim(),
+      year: _yearController.text.isNotEmpty ? int.tryParse(_yearController.text.trim()) : null,
+      color: _colorController.text.isNotEmpty ? _colorController.text.trim() : null,
+      vehicleImageUrl: null, // Will be uploaded separately
+      createdAt: DateTime.now(),
     );
-    
-    // In a real app, we would save the vehicle data
-    // For UI implementation, just navigate to the home screen
-    Navigator.pushNamedAndRemoveUntil(
-      context, 
-      AppConstants.homeRoute, 
-      (route) => false
-    );
+
+    // Save to database
+    final success = await context.read<ParkingProvider>().createVehicle(vehicle);
+
+    if (success) {
+      // Navigate to verification
+      Navigator.pushNamed(
+        context,
+        AppConstants.homeRoute
+      );
+    } else {
+      // Show error message
+      final error = context.read<ParkingProvider>().error;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to save vehicle: ${error ?? 'Unknown error'}')),
+      );
+    }
   }
   
   // Check and request camera and storage permissions
@@ -526,14 +571,107 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                   ),
                 ),
               ),
+              const SizedBox(height: 16),
+              // Year (optional)
+              FadeSlideAnimation(
+                delay: const Duration(milliseconds: 550),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: AppColors.backgroundLight,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.calendar_today_outlined,
+                        color: AppColors.textSecondary,
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'YEAR (OPTIONAL)',
+                              style: AppTextStyles.caption.copyWith(
+                                color: AppColors.textSecondary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            TextField(
+                              controller: _yearController,
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(
+                                hintText: '2020',
+                                border: InputBorder.none,
+                                isDense: true,
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                              style: AppTextStyles.bodyMedium,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Color (optional)
+              FadeSlideAnimation(
+                delay: const Duration(milliseconds: 600),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: AppColors.backgroundLight,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.palette_outlined,
+                        color: AppColors.textSecondary,
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'COLOR (OPTIONAL)',
+                              style: AppTextStyles.caption.copyWith(
+                                color: AppColors.textSecondary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            TextField(
+                              controller: _colorController,
+                              decoration: const InputDecoration(
+                                hintText: 'White',
+                                border: InputBorder.none,
+                                isDense: true,
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                              style: AppTextStyles.bodyMedium,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               const SizedBox(height: 40),
               // Add vehicle button
               FadeSlideAnimation(
-                delay: const Duration(milliseconds: 600),
+                delay: const Duration(milliseconds: 700),
                 child: SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _navigateToHome,
+                    onPressed: _saveVehicle,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: AppColors.buttonText,

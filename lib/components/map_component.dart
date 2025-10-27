@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:provider/provider.dart';
 import 'package:parkright/models/parking_spot.dart';
+import 'package:parkright/providers/parking_provider.dart';
+import 'package:parkright/services/map_service.dart';
 import 'dart:async';
 
 class MapComponent extends StatefulWidget {
   final Function(ParkingSpot) onSpotSelected;
   final VoidCallback? onMapError;
+  final List<ParkingSpot>? hereApiParkingSpots;
 
   const MapComponent({
     super.key,
     required this.onSpotSelected,
     this.onMapError,
+    this.hereApiParkingSpots,
   });
 
   @override
@@ -20,140 +25,11 @@ class MapComponent extends StatefulWidget {
 
 class _MapComponentState extends State<MapComponent> {
   final MapController _mapController = MapController();
-  
+  final MapService _mapService = MapService();
+
   // Initial center position (Saint Louis University, USA)
   static final LatLng _initialCenter = LatLng(38.6368, -90.2336); // Saint Louis University center
-  
-  // Saint Louis University campus parking spots data
-  final List<ParkingSpot> _parkingSpots = [
-    ParkingSpot(
-      id: '1',
-      name: 'Laclede Garage',
-      address: 'Laclede Ave',
-      position: LatLng(38.6356, -90.2342), // Main campus garage
-      pricePerHour: 3,
-      availableSpots: 15,
-      distanceInMeters: 50,
-    ),
-    ParkingSpot(
-      id: '2',
-      name: 'Grand Garage',
-      address: 'Grand Blvd',
-      position: LatLng(38.6365, -90.2365), // Near Grand entrance
-      pricePerHour: 2,
-      availableSpots: 20,
-      distanceInMeters: 150,
-    ),
-    ParkingSpot(
-      id: '3',
-      name: 'Olive Garage',
-      address: 'Olive St',
-      position: LatLng(38.6378, -90.2351), // North campus area
-      pricePerHour: 2,
-      availableSpots: 25,
-      distanceInMeters: 200,
-    ),
-    ParkingSpot(
-      id: '4',
-      name: 'Chaifetz Arena Parking',
-      address: 'S Compton Ave',
-      position: LatLng(38.6337, -90.2301), // Arena parking
-      pricePerHour: 4,
-      availableSpots: 30,
-      distanceInMeters: 350,
-    ),
-    ParkingSpot(
-      id: '5',
-      name: 'Spring Hall Parking',
-      address: 'Spring Ave',
-      position: LatLng(38.6354, -90.2376), // Residence hall parking
-      pricePerHour: 2,
-      availableSpots: 10,
-      distanceInMeters: 180,
-    ),
-    ParkingSpot(
-      id: '6',
-      name: 'Lindell Blvd Parking',
-      address: 'Lindell Blvd',
-      position: LatLng(38.6392, -90.2341), // North edge of campus
-      pricePerHour: 3,
-      availableSpots: 8,
-      distanceInMeters: 250,
-    ),
-    ParkingSpot(
-      id: '7',
-      name: 'Morrissey Hall Lot',
-      address: 'Spring Ave',
-      position: LatLng(38.6340, -90.2363), // Southwest campus
-      pricePerHour: 2,
-      availableSpots: 12,
-      distanceInMeters: 220,
-    ),
-    ParkingSpot(
-      id: '8',
-      name: 'Simon Recreation Center Parking',
-      address: 'Laclede Ave',
-      position: LatLng(38.6365, -90.2326), // East campus
-      pricePerHour: 3,
-      availableSpots: 15,
-      distanceInMeters: 120,
-    ),
-    ParkingSpot(
-      id: '9',
-      name: 'Pius XII Library Parking',
-      address: 'W Pine Mall',
-      position: LatLng(38.6371, -90.2352), // Central campus
-      pricePerHour: 2,
-      availableSpots: 7,
-      distanceInMeters: 100,
-    ),
-    ParkingSpot(
-      id: '10',
-      name: 'Busch Student Center Lot',
-      address: 'Grand Blvd',
-      position: LatLng(38.6367, -90.2375), // Near student center
-      pricePerHour: 3,
-      availableSpots: 9,
-      distanceInMeters: 140,
-    ),
-    ParkingSpot(
-      id: '11',
-      name: 'Medical Center Garage',
-      address: 'S Grand Blvd',
-      position: LatLng(38.6396, -90.2365), // SLU Hospital area
-      pricePerHour: 4,
-      availableSpots: 22,
-      distanceInMeters: 380,
-    ),
-    ParkingSpot(
-      id: '12',
-      name: 'Griesedieck Hall Parking',
-      address: 'Laclede Ave',
-      position: LatLng(38.6350, -90.2361), // Residence hall area
-      pricePerHour: 2,
-      availableSpots: 10,
-      distanceInMeters: 160,
-    ),
-    ParkingSpot(
-      id: '13',
-      name: 'Reinert Hall Lot',
-      address: 'W Pine Mall',
-      position: LatLng(38.6380, -90.2368), // Northeast residence area
-      pricePerHour: 2,
-      availableSpots: 8,
-      distanceInMeters: 190,
-    ),
-    ParkingSpot(
-      id: '14',
-      name: 'Vandeventer Lot',
-      address: 'S Vandeventer Ave',
-      position: LatLng(38.6355, -90.2395), // Western edge of campus
-      pricePerHour: 2,
-      availableSpots: 15,
-      distanceInMeters: 300,
-    ),
-  ];
-  
+
   // List of marker layers
   List<Marker> _markers = [];
   bool _isMapLoaded = false;
@@ -161,8 +37,8 @@ class _MapComponentState extends State<MapComponent> {
   @override
   void initState() {
     super.initState();
-    _createMarkers();
-    
+    _loadParkingSpots();
+
     // Add a slight delay to check if map loads properly
     Future.delayed(Duration(seconds: 2), () {
       if (!_isMapLoaded && mounted) {
@@ -173,85 +49,175 @@ class _MapComponentState extends State<MapComponent> {
     });
   }
 
+  @override
+  void didUpdateWidget(MapComponent oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Check if HERE API spots have changed
+    if (widget.hereApiParkingSpots != oldWidget.hereApiParkingSpots) {
+      print('HERE API spots updated, reloading markers');
+      _loadParkingSpots();
+    }
+  }
+
+  // Load parking spots from provider
+  void _loadParkingSpots() async {
+    final parkingProvider = Provider.of<ParkingProvider>(context, listen: false);
+    await parkingProvider.loadNearbyParkingSpots(_initialCenter, radius: 2000);
+
+    // Combine Supabase spots with HERE API spots
+    final allSpots = [...parkingProvider.parkingSpots];
+    if (widget.hereApiParkingSpots != null) {
+      allSpots.addAll(widget.hereApiParkingSpots!);
+      print('MapComponent received ${widget.hereApiParkingSpots!.length} HERE API spots');
+    }
+
+    print('Total spots to display: ${allSpots.length}');
+    _createMarkers(allSpots);
+  }
+
+  // Search for location using HERE API
+  Future<void> _searchLocation(String query) async {
+    try {
+      final latLng = await _mapService.geocodeAddress(query);
+
+      // Move map to searched location
+      _mapController.move(latLng, 15.0);
+
+      // Load parking spots near the searched location
+      final parkingProvider = Provider.of<ParkingProvider>(context, listen: false);
+      await parkingProvider.loadNearbyParkingSpots(latLng, radius: 2000);
+
+      // Combine Supabase spots with HERE API spots
+      final allSpots = [...parkingProvider.parkingSpots];
+      if (widget.hereApiParkingSpots != null) {
+        allSpots.addAll(widget.hereApiParkingSpots!);
+      }
+
+      _createMarkers(allSpots);
+    } catch (e) {
+      // Handle search error
+      print('Search error: $e');
+    }
+  }
+
   // Create map markers from parking spots
-  void _createMarkers() {
-    _markers = _parkingSpots.map((spot) => 
-      Marker(
-        point: spot.position,
-        width: 60,  // Increased width
-        height: 60, // Increased height
-        child: GestureDetector(
-          onTap: () => widget.onSpotSelected(spot),
-          child: Column(
-            mainAxisSize: MainAxisSize.min, // Important: take minimum vertical space
-            children: [
-              Icon(
-                Icons.location_on,
-                color: Colors.red,
-                size: 30,
-              ),
-              Container(
-                padding: EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(4),
+  void _createMarkers(List<ParkingSpot> parkingSpots) {
+    setState(() {
+      _markers = parkingSpots.map((spot) => 
+        Marker(
+          point: spot.location,
+          width: 60,  // Increased width
+          height: 60, // Increased height
+          child: GestureDetector(
+            onTap: () => widget.onSpotSelected(spot),
+            child: Column(
+              mainAxisSize: MainAxisSize.min, // Important: take minimum vertical space
+              children: [
+                Icon(
+                  Icons.location_on,
+                  color: Colors.red,
+                  size: 30,
                 ),
-                child: Text(
-                  spot.name,
-                  style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold),
-                  overflow: TextOverflow.ellipsis, // Handle text overflow
-                  maxLines: 1, // Limit to one line
-                ),
-              )
-            ],
+                Container(
+                  padding: EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    spot.title,
+                    style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold),
+                    overflow: TextOverflow.ellipsis, // Handle text overflow
+                    maxLines: 1, // Limit to one line
+                  ),
+                )
+              ],
+            ),
           ),
-        ),
-      )
-    ).toList();
+        )
+      ).toList();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        // OpenStreetMap with error handling
-        Builder(
-          builder: (context) {
-            try {
-              return FlutterMap(
-                mapController: _mapController,
-                options: MapOptions(
-                  initialCenter: _initialCenter,
-                  initialZoom: 5.0,
-                  onMapReady: () {
-                    setState(() {
-                      _isMapLoaded = true;
-                    });
-                    // Center map on Saint Louis University campus
-                    _mapController.move(LatLng(38.6368, -90.2336), 15.0);
-                  },
-                ),
-                children: [
-                  TileLayer(
-                    urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    userAgentPackageName: 'com.parkright.app',
-                    maxZoom: 19,
-                  ),
-                  MarkerLayer(markers: _markers),
-                ],
-              );
-            } catch (e) {
-              // Handle map error
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (widget.onMapError != null) {
-                  widget.onMapError!();
+    return Consumer<ParkingProvider>(
+      builder: (context, parkingProvider, child) {
+        // Only update markers if we don't have HERE API spots
+        // (HERE API spots are handled in _loadParkingSpots)
+        if (widget.hereApiParkingSpots == null && parkingProvider.parkingSpots.isNotEmpty && _markers.length != parkingProvider.parkingSpots.length) {
+          _createMarkers(parkingProvider.parkingSpots);
+        }
+
+        return Stack(
+          children: [
+            // OpenStreetMap with error handling
+            Builder(
+              builder: (context) {
+                try {
+                  return FlutterMap(
+                    mapController: _mapController,
+                    options: MapOptions(
+                      initialCenter: _initialCenter,
+                      initialZoom: 5.0,
+                      onMapReady: () {
+                        setState(() {
+                          _isMapLoaded = true;
+                        });
+                        // Center map on Saint Louis University campus
+                        _mapController.move(LatLng(38.6368, -90.2336), 15.0);
+                      },
+                    ),
+                    children: [
+                      TileLayer(
+                        urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        userAgentPackageName: 'com.parkright.app',
+                        maxZoom: 19,
+                      ),
+                      MarkerLayer(markers: _markers),
+                    ],
+                  );
+                } catch (e) {
+                  // Handle map error
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (widget.onMapError != null) {
+                      widget.onMapError!();
+                    }
+                  });
+                  return const SizedBox.expand(
+                    child: ColoredBox(color: Colors.grey),
+                  );
                 }
-              });
-              return const SizedBox.expand(
-                child: ColoredBox(color: Colors.grey),
-              );
-            }
-          },
+              },
+            ),
+        
+        // Search Bar
+        Positioned(
+          top: 16,
+          left: 16,
+          right: 16,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Search location...',
+                prefixIcon: Icon(Icons.search),
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              ),
+              onSubmitted: _searchLocation,
+            ),
+          ),
         ),
         
         // Map Controls
@@ -336,6 +302,8 @@ class _MapComponentState extends State<MapComponent> {
           ),
         ),
       ],
+        );
+      },
     );
   }
 }

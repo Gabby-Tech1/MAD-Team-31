@@ -39,11 +39,9 @@ class AppRouter {
         );
         
       case AppConstants.verificationRoute:
-        final args = settings.arguments as Map<String, dynamic>?;
-        final phoneNumber = args != null ? args['phoneNumber'] as String? : '';
         return PageTransition(
           type: PageTransitionType.rightToLeft,
-          child: VerificationScreen(phoneNumber: phoneNumber ?? ''),
+          child: const VerificationScreen(),
           duration: const Duration(milliseconds: AppConstants.shortAnimationDuration),
         );
         

@@ -1,22 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:parkright/utils/app_constants.dart';
 import 'package:parkright/utils/app_router.dart';
 import 'package:parkright/utils/app_theme.dart';
 import 'package:parkright/utils/map_initializer.dart';
+import 'package:parkright/utils/config.dart';
+import 'package:parkright/providers/auth_provider.dart';
+import 'package:parkright/providers/parking_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
+  // Initialize Supabase
+  await Supabase.initialize(
+    url: Config.supabaseUrl,
+    anonKey: Config.supabaseAnonKey,
+  );
+
   // Initialize Google Maps
   await MapInitializer.initialize();
-  
+
   // Set preferred orientations
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  
+
   // Set system UI overlay style
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -26,7 +37,7 @@ Future<void> main() async {
       systemNavigationBarIconBrightness: Brightness.dark,
     ),
   );
-  
+
   runApp(const ParkRightApp());
 }
 
@@ -35,12 +46,18 @@ class ParkRightApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: AppConstants.appName,
-      theme: AppTheme.lightTheme,
-      debugShowCheckedModeBanner: false,
-      initialRoute: AppConstants.splashRoute,
-      onGenerateRoute: AppRouter.generateRoute,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => ParkingProvider()),
+      ],
+      child: MaterialApp(
+        title: AppConstants.appName,
+        theme: AppTheme.lightTheme,
+        debugShowCheckedModeBanner: false,
+        initialRoute: AppConstants.splashRoute,
+        onGenerateRoute: AppRouter.generateRoute,
+      ),
     );
   }
 }

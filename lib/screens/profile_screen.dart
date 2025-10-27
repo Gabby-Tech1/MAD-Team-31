@@ -3,6 +3,10 @@ import 'package:parkright/utils/app_theme.dart';
 import 'package:parkright/components/profile_list_tile.dart';
 import 'package:parkright/models/user_profile.dart';
 import 'package:parkright/utils/app_constants.dart';
+import 'package:provider/provider.dart';
+import 'package:parkright/providers/auth_provider.dart';
+import 'package:parkright/providers/parking_provider.dart';
+import 'package:parkright/models/vehicle.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -19,16 +23,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    // Sample user profile - in a real app, this would come from a state management solution
-    userProfile = UserProfile(
-      name: 'Gabby Addo',
-      email: 'gabby.addo@example.com',
-      phoneNumber: '+233 591234567',
-      vehicles: [
-        'Toyota Camry',
-        'Honda Accord',
-      ],
-    );
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final authProvider = context.read<AuthProvider>();
+    final parkingProvider = context.read<ParkingProvider>();
+    
+    if (authProvider.user != null) {
+      // Load user vehicles
+      await parkingProvider.loadUserVehicles(authProvider.user!.id);
+    }
   }
 
   void _editProfile() {
@@ -103,7 +108,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void _showVehicleOptions() {
+  void _showVehicleOptions(List<Vehicle> vehicles) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -123,23 +128,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            ...userProfile.vehicles.map((vehicle) => ListTile(
+            ...vehicles.map((vehicle) => ListTile(
               leading: const Icon(Icons.directions_car, color: AppColors.primary),
-              title: Text(vehicle),
+              title: Text(vehicle.model),
               trailing: IconButton(
                 icon: const Icon(Icons.delete_outline, color: Colors.red),
                 onPressed: () {
-                  // Remove vehicle
-                  setState(() {
-                    final updatedVehicles = List<String>.from(userProfile.vehicles);
-                    updatedVehicles.remove(vehicle);
-                    userProfile = UserProfile(
-                      name: userProfile.name,
-                      email: userProfile.email,
-                      phoneNumber: userProfile.phoneNumber,
-                      vehicles: updatedVehicles,
-                    );
-                  });
+                  // TODO: Implement vehicle deletion from database
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Vehicle deletion coming soon')),
+                  );
                   Navigator.of(context).pop();
                 },
               ),
@@ -172,28 +170,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey.shade100,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: const Text(
-          'Profile',
-          style: TextStyle(
-            color: AppColors.textPrimary,
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(
-              Icons.settings_outlined,
-              color: AppColors.textPrimary,
+    return Consumer2<AuthProvider, ParkingProvider>(
+      builder: (context, authProvider, parkingProvider, child) {
+        final user = authProvider.user;
+        final vehicles = parkingProvider.userVehicles;
+        
+        return Scaffold(
+          backgroundColor: Colors.grey.shade100,
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            title: const Text(
+              'Profile',
+              style: TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            onPressed: () {
-              // Show settings options
-              ScaffoldMessenger.of(context).showSnackBar(
+            actions: [
+              IconButton(
+                icon: const Icon(
+                  Icons.settings_outlined,
+                  color: AppColors.textPrimary,
+                ),
+                onPressed: () {
+                  // Show settings options
+                  ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Settings coming soon!'),
                   duration: Duration(seconds: 1),
@@ -207,7 +210,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           children: [
             // Profile card
-            _buildProfileCard(userProfile),
+            _buildProfileCard(UserProfile(
+              name: user?.userMetadata?['full_name'] ?? 'User',
+              email: user?.email ?? '',
+              phoneNumber: user?.userMetadata?['phone'] ?? '',
+              vehicles: vehicles.map((v) => v.model).toList(),
+            )),
             
             const SizedBox(height: 16),
             
@@ -221,8 +229,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ProfileListTile(
                 icon: Icons.directions_car_outlined,
                 title: 'My Vehicles',
-                onTap: _showVehicleOptions,
-                subtitle: '${userProfile.vehicles.length} vehicles',
+                onTap: () => _showVehicleOptions(vehicles),
+                subtitle: '${vehicles.length} vehicles',
               ),
               ProfileListTile(
                 icon: Icons.payment_outlined,
@@ -375,7 +383,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
     );
-  }
+  });
+}
   
   void _showAboutDialog() {
     showDialog(

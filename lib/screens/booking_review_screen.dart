@@ -3,6 +3,10 @@ import 'package:parkright/models/parking_spot.dart';
 import 'package:parkright/utils/app_theme.dart';
 import 'package:parkright/components/primary_button.dart';
 import 'package:parkright/utils/app_constants.dart';
+import 'package:provider/provider.dart';
+import 'package:parkright/providers/parking_provider.dart';
+import 'package:parkright/providers/auth_provider.dart';
+import 'package:parkright/models/booking.dart';
 
 class BookingReviewScreen extends StatelessWidget {
   final ParkingSpot spot;
@@ -159,19 +163,71 @@ class BookingReviewScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: PrimaryButton(
               text: 'Pay and Confirm',
-              onPressed: () {
-                // Navigate to the parking code screen
-                Navigator.pushNamed(
-                  context,
-                  AppConstants.parkingCodeRoute,
-                  arguments: {
-                    'spot': spot,
-                    'hours': hours,
-                    'spaceId': spaceId,
-                    'floor': floor,
-                    'vehicle': vehicle,
-                  },
+              onPressed: () async {
+                // Get providers
+                final authProvider = context.read<AuthProvider>();
+                final parkingProvider = context.read<ParkingProvider>();
+                
+                if (authProvider.user == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please log in first')),
+                  );
+                  return;
+                }
+                
+                // Load user vehicles if not already loaded
+                if (parkingProvider.userVehicles.isEmpty) {
+                  await parkingProvider.loadUserVehicles(authProvider.user!.id);
+                }
+
+                // Check if user has vehicles
+                if (parkingProvider.userVehicles.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please add a vehicle first before booking')),
+                  );
+                  return;
+                }
+
+                // Find the vehicle by model/name
+                final selectedVehicle = parkingProvider.userVehicles.firstWhere(
+                  (v) => v.model == vehicle,
+                  orElse: () => parkingProvider.userVehicles.first,
                 );
+                
+                // Create booking
+                final booking = Booking(
+                  id: '', // Will be set by database
+                  userId: authProvider.user!.id,
+                  parkingSpotId: spot.id,
+                  vehicleId: selectedVehicle.id,
+                  startTime: DateTime.now(),
+                  endTime: DateTime.now().add(Duration(hours: hours)),
+                  totalPrice: spot.calculatePrice(hours),
+                  status: 'confirmed',
+                  paymentStatus: 'completed',
+                  createdAt: DateTime.now(),
+                );
+                
+                final success = await parkingProvider.createBooking(booking);
+                
+                if (success) {
+                  // Navigate to the parking code screen
+                  Navigator.pushNamed(
+                    context,
+                    AppConstants.parkingCodeRoute,
+                    arguments: {
+                      'spot': spot,
+                      'hours': hours,
+                      'spaceId': spaceId,
+                      'floor': floor,
+                      'vehicle': vehicle,
+                    },
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(parkingProvider.error ?? 'Failed to create booking. Please try again.')),
+                  );
+                }
               },
             ),
           ),

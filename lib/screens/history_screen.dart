@@ -3,59 +3,88 @@ import 'package:parkright/utils/app_theme.dart';
 import 'package:parkright/models/parking_history_item.dart';
 import 'package:parkright/components/parking_history_card.dart';
 import 'package:parkright/components/empty_state_component.dart';
+import 'package:provider/provider.dart';
+import 'package:parkright/providers/auth_provider.dart';
+import 'package:parkright/providers/parking_provider.dart';
+import 'package:parkright/models/booking.dart';
 
-class HistoryScreen extends StatelessWidget {
+class HistoryScreen extends StatefulWidget {
   const HistoryScreen({Key? key}) : super(key: key);
 
   @override
+  State<HistoryScreen> createState() => _HistoryScreenState();
+}
+
+class _HistoryScreenState extends State<HistoryScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _loadUserBookings();
+  }
+
+  Future<void> _loadUserBookings() async {
+    final authProvider = context.read<AuthProvider>();
+    final parkingProvider = context.read<ParkingProvider>();
+
+    if (authProvider.user != null) {
+      await parkingProvider.loadUserBookings(authProvider.user!.id);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final List<ParkingHistoryItem> historyItems = _getHistoryItems();
-    
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          centerTitle: false,
-          title: const Text(
-            'Parking History',
-            style: TextStyle(
-              color: AppColors.textPrimary,
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
+    return Consumer<ParkingProvider>(
+      builder: (context, parkingProvider, child) {
+        final bookings = parkingProvider.userBookings;
+        final historyItems = _convertBookingsToHistoryItems(bookings);
+
+        return DefaultTabController(
+          length: 2,
+          child: Scaffold(
+            backgroundColor: Colors.white,
+            appBar: AppBar(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              centerTitle: false,
+              title: const Text(
+                'Parking History',
+                style: TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              bottom: const TabBar(
+                labelColor: AppColors.primary,
+                unselectedLabelColor: AppColors.textSecondary,
+                indicatorColor: AppColors.primary,
+                tabs: [
+                  Tab(text: 'Ongoing'),
+                  Tab(text: 'Completed'),
+                ],
+              ),
+            ),
+            body: TabBarView(
+              children: [
+                // Ongoing tab
+                _buildHistoryList(
+                  historyItems.where((item) => !item.isCompleted).toList(),
+                  isOngoing: true,
+                ),
+
+                // Completed tab
+                _buildHistoryList(
+                  historyItems.where((item) => item.isCompleted).toList(),
+                  isOngoing: false,
+                ),
+              ],
             ),
           ),
-          bottom: const TabBar(
-            labelColor: AppColors.primary,
-            unselectedLabelColor: AppColors.textSecondary,
-            indicatorColor: AppColors.primary,
-            tabs: [
-              Tab(text: 'Ongoing'),
-              Tab(text: 'Completed'),
-            ],
-          ),
-        ),
-        body: TabBarView(
-          children: [
-            // Ongoing tab
-            _buildHistoryList(
-              historyItems.where((item) => !item.isCompleted).toList(),
-              isOngoing: true,
-            ),
-            
-            // Completed tab
-            _buildHistoryList(
-              historyItems.where((item) => item.isCompleted).toList(),
-              isOngoing: false,
-            ),
-          ],
-        ),
-      ),
+        );
+      },
     );
   }
-  
+
   Widget _buildHistoryList(List<ParkingHistoryItem> items, {required bool isOngoing}) {
     if (items.isEmpty) {
       return EmptyStateComponent(
@@ -66,7 +95,7 @@ class HistoryScreen extends StatelessWidget {
             : 'Your completed parking bookings will appear here',
       );
     }
-    
+
     return ListView.separated(
       padding: const EdgeInsets.all(16),
       itemCount: items.length,
@@ -82,62 +111,22 @@ class HistoryScreen extends StatelessWidget {
     );
   }
 
-  // Sample history items
-  List<ParkingHistoryItem> _getHistoryItems() {
-    final now = DateTime.now();
-    
-    return [
-      // Ongoing parking
-      ParkingHistoryItem(
-        id: '1',
-        spotName: 'Marley Square Parking',
-        address: '123 Marley St, New York',
-        startTime: now.subtract(const Duration(hours: 1)),
-        endTime: now.add(const Duration(hours: 2)),
-        spaceId: 'A24',
-        floor: 2,
-        vehicle: 'Toyota Camry',
-        amount: 15.00,
-        isCompleted: false,
-      ),
-      
-      // Completed parking
-      ParkingHistoryItem(
-        id: '2',
-        spotName: 'Ocean View Lot',
-        address: '456 Ocean Ave, New York',
-        startTime: now.subtract(const Duration(days: 2, hours: 3)),
-        endTime: now.subtract(const Duration(days: 2, hours: 1)),
-        spaceId: 'B12',
-        floor: 1,
-        vehicle: 'Toyota Camry',
-        amount: 10.00,
-        isCompleted: true,
-      ),
-      ParkingHistoryItem(
-        id: '3',
-        spotName: 'Central Plaza Garage',
-        address: '789 Central Blvd, New York',
-        startTime: now.subtract(const Duration(days: 5, hours: 4)),
-        endTime: now.subtract(const Duration(days: 5, hours: 2)),
-        spaceId: 'C08',
-        floor: 3,
-        vehicle: 'Honda Accord',
-        amount: 8.50,
-        isCompleted: true,
-      ),
-      ParkingHistoryItem(
-        id: '4',
-        spotName: 'Downtown Parking Complex',
-        address: '321 Main St, New York',
-        startTime: now.subtract(const Duration(days: 10, hours: 5)),
-        endTime: now.subtract(const Duration(days: 10, hours: 3)),
-        spaceId: 'D15',
-        floor: 4,
-        vehicle: 'Toyota Camry',
-        amount: 12.00,
-        isCompleted: true,
-      ),
-    ];
+  List<ParkingHistoryItem> _convertBookingsToHistoryItems(List<Booking> bookings) {
+    return bookings.map((booking) {
+      // For now, we'll need to get parking spot details and vehicle details
+      // This is a simplified conversion - in a real app you'd join this data
+      return ParkingHistoryItem(
+        id: booking.id,
+        spotName: 'Parking Spot ${booking.parkingSpotId}', // TODO: Get actual spot name
+        address: 'Address not available', // TODO: Get actual address
+        startTime: booking.startTime,
+        endTime: booking.endTime,
+        spaceId: 'Space ID', // TODO: Get actual space ID
+        floor: 1, // TODO: Get actual floor
+        vehicle: 'Vehicle ${booking.vehicleId}', // TODO: Get actual vehicle name
+        amount: booking.totalPrice,
+        isCompleted: booking.status == 'completed',
+      );
+    }).toList();
   }
 }
