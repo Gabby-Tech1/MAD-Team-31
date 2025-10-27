@@ -306,6 +306,39 @@ ParkRight Profile, Notifications, History Screens
 <img width="468" height="313" alt="image" src="https://github.com/user-attachments/assets/0ef83c48-637d-4960-86b7-54965d4ab8a5" />
 
 ---
+## 🗓️ Week 3 Changelog
+
+Team Members - 
+Atharva Pitke
+Gabriel Kwame Addo Quainoo
+
+### 🚀 Summary of Updates & Deliverables
+This week focused on **enhancing user interaction, backend connectivity, and real-time parking data** through deeper **Supabase** and **HERE API** integration, along with adding a complete **user feedback mechanism** to improve overall engagement and usability.
+
+---
+
+### ✅ New Features Implemented
+
+#### 📝 Feedback Form
+- Added a fully functional **user feedback form** within the app, accessible directly from the **Home screen**.  
+- **Fields:** Name, Email, and Feedback message  
+- Includes **form validation** to ensure non-empty fields and valid email format  
+- Displays a **SnackBar confirmation** after successful submission  
+- Designed for future integration with **Supabase** or an **API endpoint** to store responses  
+
+#### 🗺️ HERE On-Street Parking API Integration
+- Integrated **live parking availability data** from the **HERE On-Street Parking API**  
+- Displays **real-time updates** on available parking spots and occupancy levels  
+- Parses **JSON data** for dynamic map rendering and live marker updates  
+- Improved **map marker accuracy** and performance for smoother user experience  
+
+#### 🔧 Supabase Enhancements
+- Completed **authentication** and **database setup** using **PostgreSQL with Row Level Security (RLS) policies)**  
+- Added **vehicle management** and **booking tracking** for authenticated users  
+- Implemented **real-time database updates** for parking availability and booking status  
+- Enhanced **error handling** during booking creation, authentication, and validation processes  
+
+---
 
 ## 🔧 Backend Integration
 
