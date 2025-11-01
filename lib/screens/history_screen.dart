@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:parkright/providers/auth_provider.dart';
 import 'package:parkright/providers/parking_provider.dart';
 import 'package:parkright/models/booking.dart';
+import 'package:parkright/utils/app_constants.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({Key? key}) : super(key: key);
@@ -33,55 +34,67 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ParkingProvider>(
-      builder: (context, parkingProvider, child) {
-        final bookings = parkingProvider.userBookings;
-        final historyItems = _convertBookingsToHistoryItems(bookings);
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pushReplacementNamed(context, AppConstants.homeRoute);
+        return false;
+      },
+      child: Consumer<ParkingProvider>(
+        builder: (context, parkingProvider, child) {
+          final bookings = parkingProvider.userBookings;
+          final historyItems = _convertBookingsToHistoryItems(bookings);
 
-        return DefaultTabController(
-          length: 2,
-          child: Scaffold(
-            backgroundColor: Colors.white,
-            appBar: AppBar(
+          return DefaultTabController(
+            length: 2,
+            child: Scaffold(
               backgroundColor: Colors.white,
-              elevation: 0,
-              centerTitle: false,
-              title: const Text(
-                'Parking History',
-                style: TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
+              appBar: AppBar(
+                backgroundColor: Colors.white,
+                elevation: 0,
+                centerTitle: false,
+                title: const Text(
+                  'Parking History',
+                  style: TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+                  onPressed: () {
+                    Navigator.pushReplacementNamed(context, AppConstants.homeRoute);
+                  },
+                ),
+                bottom: const TabBar(
+                  labelColor: AppColors.primary,
+                  unselectedLabelColor: AppColors.textSecondary,
+                  indicatorColor: AppColors.primary,
+                  tabs: [
+                    Tab(text: 'Ongoing'),
+                    Tab(text: 'Completed'),
+                  ],
                 ),
               ),
-              bottom: const TabBar(
-                labelColor: AppColors.primary,
-                unselectedLabelColor: AppColors.textSecondary,
-                indicatorColor: AppColors.primary,
-                tabs: [
-                  Tab(text: 'Ongoing'),
-                  Tab(text: 'Completed'),
+              body: TabBarView(
+                children: [
+                  // Ongoing tab
+                  _buildHistoryList(
+                    historyItems.where((item) => !item.isCompleted).toList(),
+                    isOngoing: true,
+                  ),
+
+                  // Completed tab
+                  _buildHistoryList(
+                    historyItems.where((item) => item.isCompleted).toList(),
+                    isOngoing: false,
+                  ),
                 ],
               ),
             ),
-            body: TabBarView(
-              children: [
-                // Ongoing tab
-                _buildHistoryList(
-                  historyItems.where((item) => !item.isCompleted).toList(),
-                  isOngoing: true,
-                ),
-
-                // Completed tab
-                _buildHistoryList(
-                  historyItems.where((item) => item.isCompleted).toList(),
-                  isOngoing: false,
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
@@ -113,17 +126,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   List<ParkingHistoryItem> _convertBookingsToHistoryItems(List<Booking> bookings) {
     return bookings.map((booking) {
-      // For now, we'll need to get parking spot details and vehicle details
-      // This is a simplified conversion - in a real app you'd join this data
       return ParkingHistoryItem(
         id: booking.id,
-        spotName: 'Parking Spot ${booking.parkingSpotId}', // TODO: Get actual spot name
-        address: 'Address not available', // TODO: Get actual address
+        spotName: 'Parking Spot ${booking.parkingSpotId}',
+        address: 'Address not available',
         startTime: booking.startTime,
         endTime: booking.endTime,
-        spaceId: 'Space ID', // TODO: Get actual space ID
-        floor: 1, // TODO: Get actual floor
-        vehicle: 'Vehicle ${booking.vehicleId}', // TODO: Get actual vehicle name
+        spaceId: 'Space ID',
+        floor: 1,
+        vehicle: 'Vehicle ${booking.vehicleId}',
         amount: booking.totalPrice,
         isCompleted: booking.status == 'completed',
       );
