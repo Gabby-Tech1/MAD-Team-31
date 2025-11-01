@@ -2,7 +2,7 @@ import 'package:latlong2/latlong.dart';
 
 class ParkingSpot {
   final String id;
-  final String ownerId;
+  final String? ownerId; // Made nullable for system-generated spots
   final String title;
   final String? description;
   final String address;
@@ -14,10 +14,11 @@ class ParkingSpot {
   final String? rules;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final String? hereApiId; // External HERE API identifier
 
   ParkingSpot({
     required this.id,
-    required this.ownerId,
+    this.ownerId, // Made optional for system-generated spots
     required this.title,
     this.description,
     required this.address,
@@ -29,6 +30,7 @@ class ParkingSpot {
     this.rules,
     required this.createdAt,
     required this.updatedAt,
+    this.hereApiId,
   });
 
   factory ParkingSpot.fromJson(Map<String, dynamic> json) {
@@ -46,13 +48,12 @@ class ParkingSpot {
       rules: json['rules'],
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),
+      hereApiId: json['here_api_id'],
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'owner_id': ownerId,
+  Map<String, dynamic> toJson({bool includeId = false}) {
+    final json = {
       'title': title,
       'description': description,
       'address': address,
@@ -63,9 +64,18 @@ class ParkingSpot {
       'images': images,
       'amenities': amenities,
       'rules': rules,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
+      'here_api_id': hereApiId,
     };
+
+    if (ownerId != null) {
+      json['owner_id'] = ownerId;
+    }
+
+    if (includeId) {
+      json['id'] = id;
+    }
+
+    return json;
   }
 
   // Legacy getters for backward compatibility

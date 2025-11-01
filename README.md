@@ -76,6 +76,8 @@ Reports → *Analyze usage trends*
 - 📄 [Project Proposal (DOCX)](./ParkRight_ProjectProposal.docx)  
 - 🎨 [Figma Wireframe Design](https://www.figma.com/design/DgMsmf9gNq2AjGFZ8iqopb/MAD-Team-31?node-id=0-1&t=0DIiXRJG0E4RrAfa-1)  
 - 💻 [GitHub Repository](https://github.com/Gabby-Tech1/MAD-Team-31)
+- 📚 **[Complete Supabase Setup Guide](./SUPABASE_SETUP_GUIDE.md)** - Step-by-step backend setup
+- 🔧 [Supabase Integration Guide](./SUPABASE_HERE_INTEGRATION_GUIDE.md) - Detailed API setup
 
 ---
 

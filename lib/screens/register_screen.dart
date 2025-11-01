@@ -75,7 +75,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Registration successful! Please check your email to verify your account.')),
         );
-        Navigator.pushReplacementNamed(context, AppConstants.addVehicleRoute);
+        Navigator.pushReplacementNamed(context, AppConstants.loginRoute);
       }
     } catch (e) {
       if (mounted) {

@@ -9,6 +9,8 @@ import 'package:parkright/components/search_bar_component.dart';
 import 'package:parkright/components/category_selector_component.dart';
 import 'package:parkright/components/parking_spot_selection_card.dart';
 import 'package:parkright/services/map_service.dart';
+import 'package:parkright/providers/parking_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:latlong2/latlong.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -164,67 +166,97 @@ class _HomeScreenState extends State<HomeScreen> {
 
       print('HERE API returned ${places.length} parking spots');
 
+      // Get parking provider
+      final parkingProvider = context.read<ParkingProvider>();
+
       // If no spots from API, create mock spots for testing
       if (places.isEmpty) {
         print('No spots from HERE API, creating mock spots');
         _hereApiParkingSpots = [
           ParkingSpot(
-            id: 'mock_1',
-            ownerId: 'here_api',
+            id: '', // Will be set by database
+            ownerId: null, // System-generated spots have no owner
             title: 'SLU Parking Garage',
             address: '221 N Grand Blvd, St. Louis, MO 63103',
             location: LatLng(38.6368, -90.2336),
             pricePerHour: 2.5,
             isAvailable: true,
             images: [],
-            amenities: ['HERE Maps API', 'Covered'],
+            amenities: ['Covered', 'Security'],
             createdAt: DateTime.now(),
             updatedAt: DateTime.now(),
+            hereApiId: 'mock_1',
           ),
           ParkingSpot(
-            id: 'mock_2',
-            ownerId: 'here_api',
+            id: '', // Will be set by database
+            ownerId: null,
             title: 'Busch Stadium Parking',
             address: '3501 Geyer Ave, St. Louis, MO 63104',
             location: LatLng(38.6226, -90.1928),
             pricePerHour: 3.0,
             isAvailable: true,
             images: [],
-            amenities: ['HERE Maps API', 'Event Parking'],
+            amenities: ['Event Parking', 'Covered'],
             createdAt: DateTime.now(),
             updatedAt: DateTime.now(),
+            hereApiId: 'mock_2',
           ),
           ParkingSpot(
-            id: 'mock_3',
-            ownerId: 'here_api',
+            id: '', // Will be set by database
+            ownerId: null,
             title: 'Central West End Parking',
             address: '3536 Washington Ave, St. Louis, MO 63103',
             location: LatLng(38.6358, -90.2334),
             pricePerHour: 2.0,
             isAvailable: true,
             images: [],
-            amenities: ['HERE Maps API', 'Street Parking'],
+            amenities: ['Street Parking', 'Metered'],
             createdAt: DateTime.now(),
             updatedAt: DateTime.now(),
+            hereApiId: 'mock_3',
           ),
         ];
+
+        // Create spots in database
+        final createdSpots = <ParkingSpot>[];
+        for (var spot in _hereApiParkingSpots) {
+          try {
+            final createdSpot = await parkingProvider.createParkingSpot(spot);
+            createdSpots.add(createdSpot);
+          } catch (e) {
+            print('Failed to create parking spot ${spot.title}: $e');
+          }
+        }
+        _hereApiParkingSpots = createdSpots;
       } else {
-        // Convert places to parking spots
-        _hereApiParkingSpots = places.map((place) {
+        // Convert places to parking spots and store in database
+        final spotsToCreate = places.map((place) {
+          final index = places.indexOf(place);
           return ParkingSpot(
-            id: 'here_${places.indexOf(place)}',
-            ownerId: 'here_api',
+            id: '', // Will be set by database
+            ownerId: null, // System-generated from HERE API
             title: place.title,
             address: place.address,
             location: place.position,
-            pricePerHour: 2.0 + (places.indexOf(place) % 3), // Random price between 2-4
+            pricePerHour: 2.0 + (index % 3), // Random price between 2-4
             isAvailable: true,
             images: [],
             amenities: ['HERE Maps API'],
             createdAt: DateTime.now(),
             updatedAt: DateTime.now(),
+            hereApiId: 'here_$index', // Store the HERE API reference
           );
         }).toList();
+
+        _hereApiParkingSpots = [];
+        for (var spot in spotsToCreate) {
+          try {
+            final createdSpot = await parkingProvider.createParkingSpot(spot);
+            _hereApiParkingSpots.add(createdSpot);
+          } catch (e) {
+            print('Failed to create parking spot ${spot.title}: $e');
+          }
+        }
       }
 
       print('Final parking spots count: ${_hereApiParkingSpots.length}');
@@ -238,7 +270,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _hereApiParkingSpots = [
         ParkingSpot(
           id: 'fallback_1',
-          ownerId: 'here_api',
+          ownerId: null, // System-generated fallback spot
           title: 'Mock Parking Spot 1',
           address: 'Mock Address 1',
           location: LatLng(38.6368, -90.2336),
@@ -248,6 +280,7 @@ class _HomeScreenState extends State<HomeScreen> {
           amenities: ['Mock Data'],
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
+          hereApiId: 'fallback',
         ),
       ];
     } finally {

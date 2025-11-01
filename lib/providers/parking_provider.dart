@@ -37,7 +37,7 @@ class ParkingProvider extends ChangeNotifier {
   }
 
   // Create parking spot
-  Future<bool> createParkingSpot(ParkingSpot spot) async {
+  Future<ParkingSpot> createParkingSpot(ParkingSpot spot) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -46,12 +46,12 @@ class ParkingProvider extends ChangeNotifier {
       final newSpot = await _apiService.createParkingSpot(spot);
       _parkingSpots.add(newSpot);
       notifyListeners();
-      return true;
+      return newSpot;
     } catch (e) {
       _error = e.toString();
       _isLoading = false;
       notifyListeners();
-      return false;
+      throw Exception('Failed to create parking spot: $e');
     }
   }
 

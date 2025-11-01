@@ -204,7 +204,7 @@ class BookingReviewScreen extends StatelessWidget {
                   endTime: DateTime.now().add(Duration(hours: hours)),
                   totalPrice: spot.calculatePrice(hours),
                   status: 'confirmed',
-                  paymentStatus: 'completed',
+                  paymentStatus: 'paid',
                   createdAt: DateTime.now(),
                 );
                 
