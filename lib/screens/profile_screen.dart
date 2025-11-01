@@ -1,4 +1,3 @@
-// lib/screens/profile_screen.dart
 import 'package:flutter/material.dart';
 import 'package:parkright/utils/app_theme.dart';
 import 'package:parkright/components/profile_list_tile.dart';
@@ -17,14 +16,13 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  UserProfile? userProfile; // make nullable until loaded
+  UserProfile? userProfile;
   bool isDarkMode = false;
   bool notificationsEnabled = true;
 
   @override
   void initState() {
     super.initState();
-    // Defer loading to after build context is available
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadUserData();
     });
@@ -34,12 +32,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final authProvider = context.read<AuthProvider>();
     final parkingProvider = context.read<ParkingProvider>();
 
-    // Ensure user exists
     if (authProvider.user != null) {
-      // Load vehicles first
       await parkingProvider.loadUserVehicles(authProvider.user!.id);
 
-      // Initialize userProfile using available data
       setState(() {
         userProfile = UserProfile(
           name: authProvider.user?.userMetadata?['full_name']?.toString() ?? 'User',
@@ -49,7 +44,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
       });
     } else {
-      // No authenticated user — initialize empty profile so UI doesn't crash
       setState(() {
         userProfile = UserProfile(
           name: 'Guest User',
@@ -62,7 +56,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _editProfile() {
-    if (userProfile == null) return; // Guard
+    if (userProfile == null) return;
 
     final nameController = TextEditingController(text: userProfile!.name);
     final emailController = TextEditingController(text: userProfile!.email);
@@ -78,24 +72,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
-                decoration: const InputDecoration(
-                  labelText: 'Name',
-                ),
+                decoration: const InputDecoration(labelText: 'Name'),
                 controller: nameController,
               ),
               const SizedBox(height: 12),
               TextField(
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                ),
+                decoration: const InputDecoration(labelText: 'Email'),
                 controller: emailController,
                 keyboardType: TextInputType.emailAddress,
               ),
               const SizedBox(height: 12),
               TextField(
-                decoration: const InputDecoration(
-                  labelText: 'Phone Number',
-                ),
+                decoration: const InputDecoration(labelText: 'Phone Number'),
                 controller: phoneController,
                 keyboardType: TextInputType.phone,
               ),
@@ -114,12 +102,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           TextButton(
             onPressed: () {
-              // Update local model (persisting to Supabase not implemented here)
               setState(() {
                 userProfile = UserProfile(
-                  name: nameController.text.trim().isEmpty ? userProfile!.name : nameController.text.trim(),
-                  email: emailController.text.trim().isEmpty ? userProfile!.email : emailController.text.trim(),
-                  phoneNumber: phoneController.text.trim().isEmpty ? userProfile!.phoneNumber : phoneController.text.trim(),
+                  name: nameController.text.trim().isEmpty
+                      ? userProfile!.name
+                      : nameController.text.trim(),
+                  email: emailController.text.trim().isEmpty
+                      ? userProfile!.email
+                      : emailController.text.trim(),
+                  phoneNumber: phoneController.text.trim().isEmpty
+                      ? userProfile!.phoneNumber
+                      : phoneController.text.trim(),
                   vehicles: userProfile!.vehicles,
                 );
               });
@@ -152,13 +145,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'My Vehicles',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            const Text('My Vehicles',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             if (vehicles.isEmpty)
               const Padding(
@@ -171,7 +159,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   trailing: IconButton(
                     icon: const Icon(Icons.delete_outline, color: Colors.red),
                     onPressed: () {
-                      // TODO: implement deletion with provider/database
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Vehicle deletion coming soon')),
                       );
@@ -249,7 +236,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       child: Row(
         children: [
-          // Profile picture / initials
           Container(
             width: 70,
             height: 70,
@@ -261,51 +247,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Text(
                 profile.initials,
                 style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
-                ),
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary),
               ),
             ),
           ),
           const SizedBox(width: 16),
-          // Profile info
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  profile.name,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                Text(profile.name,
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
-                Text(
-                  profile.email,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
+                Text(profile.email,
+                    style: const TextStyle(
+                        fontSize: 14, color: AppColors.textSecondary)),
                 const SizedBox(height: 4),
-                Text(
-                  profile.phoneNumber,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
+                Text(profile.phoneNumber,
+                    style: const TextStyle(
+                        fontSize: 14, color: AppColors.textSecondary)),
               ],
             ),
           ),
-          // Edit button
           IconButton(
-            icon: const Icon(
-              Icons.edit_outlined,
-              color: AppColors.primary,
-            ),
+            icon: const Icon(Icons.edit_outlined, color: AppColors.primary),
             onPressed: _editProfile,
           ),
         ],
@@ -332,13 +300,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Text(
-              title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            child: Text(title,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           ),
           ...items,
         ],
@@ -348,226 +311,217 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<AuthProvider, ParkingProvider>(
-      builder: (context, authProvider, parkingProvider, child) {
-        final user = authProvider.user;
-        final vehicles = parkingProvider.userVehicles;
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pushReplacementNamed(context, AppConstants.homeRoute);
+        return false;
+      },
+      child: Consumer2<AuthProvider, ParkingProvider>(
+        builder: (context, authProvider, parkingProvider, child) {
+          final user = authProvider.user;
+          final vehicles = parkingProvider.userVehicles;
 
-        // If userProfile isn't loaded yet, construct a temporary profile
-        final currentProfile = userProfile ??
-            UserProfile(
-              name: user?.userMetadata?['full_name']?.toString() ?? 'User',
-              email: user?.email ?? '',
-              phoneNumber: user?.userMetadata?['phone']?.toString() ?? '',
-              vehicles: vehicles.map((v) => v.model).toList(),
-            );
+          final currentProfile = userProfile ??
+              UserProfile(
+                name: user?.userMetadata?['full_name']?.toString() ?? 'User',
+                email: user?.email ?? '',
+                phoneNumber: user?.userMetadata?['phone']?.toString() ?? '',
+                vehicles: vehicles.map((v) => v.model).toList(),
+              );
 
-        // show loader until initial load completes (optional)
-        if (userProfile == null && (user == null && vehicles.isEmpty)) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
+          if (userProfile == null && (user == null && vehicles.isEmpty)) {
+            return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          }
 
-        return Scaffold(
-          backgroundColor: Colors.grey.shade100,
-          appBar: AppBar(
-            backgroundColor: Colors.white,
-            elevation: 0,
-            title: const Text(
-              'Profile',
-              style: TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
+          return Scaffold(
+            backgroundColor: Colors.grey.shade100,
+            appBar: AppBar(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              title: const Text(
+                'Profile',
+                style: TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold),
               ),
-            ),
-            actions: [
-              IconButton(
-                icon: const Icon(
-                  Icons.settings_outlined,
-                  color: AppColors.textPrimary,
-                ),
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Settings coming soon!'),
-                      duration: Duration(seconds: 1),
-                    ),
-                  );
+                  Navigator.pushReplacementNamed(context, AppConstants.homeRoute);
                 },
               ),
-            ],
-          ),
-          body: SingleChildScrollView(
-            child: Column(
-              children: [
-                // Profile card
-                _buildProfileCard(currentProfile),
-
-                const SizedBox(height: 16),
-
-                // Menu sections
-                _buildSection('Account', [
-                  ProfileListTile(
-                    icon: Icons.person_outline,
-                    title: 'Personal Information',
-                    onTap: _editProfile,
-                  ),
-                  ProfileListTile(
-                    icon: Icons.directions_car_outlined,
-                    title: 'My Vehicles',
-                    onTap: () => _showVehicleOptions(vehicles),
-                    subtitle: '${vehicles.length} vehicles',
-                  ),
-                  ProfileListTile(
-                    icon: Icons.payment_outlined,
-                    title: 'Payment Methods',
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Payment methods coming soon!'),
-                          duration: Duration(seconds: 1),
-                        ),
-                      );
-                    },
-                  ),
-                ]),
-
-                const SizedBox(height: 16),
-
-                _buildSection('Settings', [
-                  SwitchListTile(
-                    title: const Text('Dark Mode'),
-                    secondary: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: AppColors.backgroundLight,
-                        borderRadius: BorderRadius.circular(8),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.settings_outlined,
+                      color: AppColors.textPrimary),
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Settings coming soon!'),
+                        duration: Duration(seconds: 1),
                       ),
-                      child: Icon(
-                        isDarkMode ? Icons.dark_mode : Icons.light_mode,
-                        color: AppColors.primary,
-                        size: 22,
-                      ),
-                    ),
-                    value: isDarkMode,
-                    onChanged: (value) {
-                      setState(() {
-                        isDarkMode = value;
-                      });
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(isDarkMode ? 'Dark mode enabled' : 'Light mode enabled'),
-                          duration: const Duration(seconds: 1),
-                        ),
-                      );
-                    },
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                  ),
-                  const Divider(height: 1, indent: 72),
-                  SwitchListTile(
-                    title: const Text('Notifications'),
-                    secondary: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: AppColors.backgroundLight,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Icon(
-                        notificationsEnabled ? Icons.notifications : Icons.notifications_off,
-                        color: AppColors.primary,
-                        size: 22,
-                      ),
-                    ),
-                    value: notificationsEnabled,
-                    onChanged: (value) {
-                      setState(() {
-                        notificationsEnabled = value;
-                      });
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                              notificationsEnabled ? 'Notifications enabled' : 'Notifications disabled'),
-                          duration: const Duration(seconds: 1),
-                        ),
-                      );
-                    },
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                  ),
-                  const Divider(height: 1, indent: 72),
-                  ProfileListTile(
-                    icon: Icons.help_outline,
-                    title: 'Help & Support',
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Help & Support coming soon!'),
-                          duration: Duration(seconds: 1),
-                        ),
-                      );
-                    },
-                  ),
-                  ProfileListTile(
-                    icon: Icons.info_outline,
-                    title: 'About ParkRight',
-                    onTap: () => _showAboutDialog(),
-                    subtitle: 'Version 1.0.0',
-                  ),
-                ]),
-
-                const SizedBox(height: 16),
-
-                // Logout button
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Confirm Logout'),
-                          content: const Text('Are you sure you want to log out?'),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(),
-                              child: const Text('CANCEL'),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                                Navigator.pushNamedAndRemoveUntil(
-                                  context,
-                                  AppConstants.loginRoute,
-                                  (route) => false,
-                                );
-                              },
-                              child: const Text('LOG OUT'),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red.shade50,
-                      foregroundColor: Colors.red,
-                      minimumSize: const Size(double.infinity, 50),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text('Log Out'),
-                  ),
+                    );
+                  },
                 ),
-
-                const SizedBox(height: 32),
               ],
             ),
-          ),
-        );
-      },
+            body: SingleChildScrollView(
+              child: Column(
+                children: [
+                  _buildProfileCard(currentProfile),
+                  const SizedBox(height: 16),
+                  _buildSection('Account', [
+                    ProfileListTile(
+                      icon: Icons.person_outline,
+                      title: 'Personal Information',
+                      onTap: _editProfile,
+                    ),
+                    ProfileListTile(
+                      icon: Icons.directions_car_outlined,
+                      title: 'My Vehicles',
+                      onTap: () => _showVehicleOptions(vehicles),
+                      subtitle: '${vehicles.length} vehicles',
+                    ),
+                    ProfileListTile(
+                      icon: Icons.payment_outlined,
+                      title: 'Payment Methods',
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Payment methods coming soon!'),
+                              duration: Duration(seconds: 1)),
+                        );
+                      },
+                    ),
+                  ]),
+                  const SizedBox(height: 16),
+                  _buildSection('Settings', [
+                    SwitchListTile(
+                      title: const Text('Dark Mode'),
+                      secondary: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: AppColors.backgroundLight,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          isDarkMode ? Icons.dark_mode : Icons.light_mode,
+                          color: AppColors.primary,
+                          size: 22,
+                        ),
+                      ),
+                      value: isDarkMode,
+                      onChanged: (value) {
+                        setState(() => isDarkMode = value);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                                isDarkMode ? 'Dark mode enabled' : 'Light mode enabled'),
+                            duration: const Duration(seconds: 1),
+                          ),
+                        );
+                      },
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    ),
+                    const Divider(height: 1, indent: 72),
+                    SwitchListTile(
+                      title: const Text('Notifications'),
+                      secondary: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: AppColors.backgroundLight,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          notificationsEnabled
+                              ? Icons.notifications
+                              : Icons.notifications_off,
+                          color: AppColors.primary,
+                          size: 22,
+                        ),
+                      ),
+                      value: notificationsEnabled,
+                      onChanged: (value) {
+                        setState(() => notificationsEnabled = value);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(notificationsEnabled
+                                ? 'Notifications enabled'
+                                : 'Notifications disabled'),
+                            duration: const Duration(seconds: 1),
+                          ),
+                        );
+                      },
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    ),
+                    const Divider(height: 1, indent: 72),
+                    ProfileListTile(
+                      icon: Icons.help_outline,
+                      title: 'Help & Support',
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Help & Support coming soon!'),
+                            duration: Duration(seconds: 1),
+                          ),
+                        );
+                      },
+                    ),
+                    ProfileListTile(
+                      icon: Icons.info_outline,
+                      title: 'About ParkRight',
+                      onTap: _showAboutDialog,
+                      subtitle: 'Version 1.0.0',
+                    ),
+                  ]),
+                  const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Confirm Logout'),
+                            content: const Text('Are you sure you want to log out?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: const Text('CANCEL'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                  Navigator.pushReplacementNamed(
+                                      context, AppConstants.loginRoute);
+                                },
+                                child: const Text('LOG OUT'),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red.shade50,
+                        foregroundColor: Colors.red,
+                        minimumSize: const Size(double.infinity, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text('Log Out'),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
